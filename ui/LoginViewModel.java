@@ -14,6 +14,10 @@ import com.gaurabneupane.id424.data.pojo.RegisterResponse;
 import com.gaurabneupane.id424.data.pojo.UserResponse;
 import com.gaurabneupane.id424.utility.AppStorage;
 
+import com.gaurabneupane.id424.utility.ServiceProvider;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import java.io.IOException;
 import java.security.Provider;
 import java.util.HashMap;
@@ -30,10 +34,9 @@ public class LoginViewModel extends AndroidViewModel {
 
     ExecutorService executor = Executors.newCachedThreadPool();
 
-    public static final String KEY_FULL_NAME = "full_name";
     public static final String KEY_EMAIL = "email";
     public static final String KEY_PASSWORD = "password";
-    public static final String KEY_CONFIRM_PASSWORD = "confirm_password";
+
 
     private MutableLiveData<Map<String, String>>  _formErrors = new MutableLiveData<>();
     LiveData<Map<String,String>> formErrors = _formErrors;
@@ -60,15 +63,6 @@ public class LoginViewModel extends AndroidViewModel {
         super.onCleared();
     }
 
-    Map<String, String> validateFullName(String fullName){
-        HashMap<String, String> fullNameErrors = new HashMap<>();
-        if(fullName.isEmpty()){
-            fullNameErrors.put(KEY_FULL_NAME, "Full Name is required");
-        } else if (!Pattern.compile("^[a-zA-Z]{4,}(?: [a-zA-Z]+){0,2}$").matcher(fullName).matches()) {
-            fullNameErrors.put(KEY_FULL_NAME, "Full Name is required");
-        }
-        return fullNameErrors;
-    }
 
     Map<String, String> validateEmail(String email){
         HashMap<String, String> emailErrors = new HashMap<>();
@@ -91,41 +85,28 @@ public class LoginViewModel extends AndroidViewModel {
         return passwordErrors;
     }
 
-    Map<String, String> validateConfirmPassword(String password, String confirmPassword){
-        HashMap<String, String> confirmPasswordErrors = new HashMap<>();
-
-        if(confirmPassword.isEmpty()){
-            confirmPasswordErrors.put(KEY_CONFIRM_PASSWORD, "Confirm Password is required");
-        } else if (validatePassword(password).isEmpty() && !password.equals(confirmPassword)) {
-            confirmPasswordErrors.put(KEY_CONFIRM_PASSWORD, "Passwords do not match.");
-        }
-
-        return confirmPasswordErrors;
-    }
-
-    public boolean validate(String fullName, String email, String password, String confirmPassword) {
+    public boolean validate(String email, String password) {
 
         HashMap<String, String> errorContainer = new HashMap<>();
 
-        Map<String, String> fullNameErrors = validateFullName(fullName);
         Map<String, String> emailErrors = validateEmail(email);
         Map<String, String> passwordErrors = validatePassword(password);
-        Map<String, String> confirmPasswordErrors = validateConfirmPassword(password, confirmPassword);
 
-        errorContainer.putAll(fullNameErrors);
+
+
         errorContainer.putAll(emailErrors);
         errorContainer.putAll(passwordErrors);
-        errorContainer.putAll(confirmPasswordErrors);
+
 
         _formErrors.setValue(errorContainer);
 
         return errorContainer.isEmpty();
     }
 
-    public void onRegisterClicked(String fullName, String email, String password, String confirmPassword){
-        if(validate(fullName, email, password, confirmPassword)){
+    public void onRegisterClicked(String email, String password){
+        if(validate(email, password)){
             registerUser(
-                    new RegisterBody(fullName, email, password, confirmPassword)
+                    new RegisterBody(email, password)
             );
         }
     }
@@ -135,7 +116,6 @@ public class LoginViewModel extends AndroidViewModel {
         executor.execute(() -> {
             try {
                 _isLoading.postValue(true);
-                Provider ServiceProvider;
                 Response<RegisterResponse> response = ServiceProvider.getService().registerUser(registerBody).execute();
                 if(response.isSuccessful()){
                     RegisterResponse registerResponse = response.body();
