@@ -1,5 +1,6 @@
 package com.gaurabneupane.id424.utility;
 
+import com.gaurabneupane.id424.BuildConfig;
 import com.gaurabneupane.id424.data.AuthService;
 
 import okhttp3.OkHttpClient;

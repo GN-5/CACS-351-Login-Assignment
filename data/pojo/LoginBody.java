@@ -2,7 +2,7 @@ package com.gaurabneupane.id424.data.pojo;
 
 import com.google.gson.annotations.SerializedName;
 
-public class RegisterBody {
+public class LoginBody {
 
     @SerializedName("email")
     private String email;
@@ -10,7 +10,7 @@ public class RegisterBody {
     private String password;
 
 
-    public RegisterBody(String email, String password) {
+    public LoginBody(String email, String password) {
         this.email = email;
         this.password = password;
     }

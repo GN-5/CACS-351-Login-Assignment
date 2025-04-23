@@ -7,10 +7,9 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
-import com.gaurabneupane.id424.data.pojo.RegisterBody;
-import com.gaurabneupane.id424.data.pojo.RegisterResponse;
+import com.gaurabneupane.id424.data.pojo.LoginBody;
+import com.gaurabneupane.id424.data.pojo.LoginResponse;
 import com.gaurabneupane.id424.data.pojo.UserResponse;
 import com.gaurabneupane.id424.utility.AppStorage;
 
@@ -19,7 +18,6 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
-import java.security.Provider;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -106,25 +104,25 @@ public class LoginViewModel extends AndroidViewModel {
     public void onRegisterClicked(String email, String password){
         if(validate(email, password)){
             registerUser(
-                    new RegisterBody(email, password)
+                    new LoginBody(email, password)
             );
         }
     }
 
 
-    public void registerUser(RegisterBody registerBody){
+    public void registerUser(LoginBody loginBody){
         executor.execute(() -> {
             try {
                 _isLoading.postValue(true);
-                Response<RegisterResponse> response = ServiceProvider.getService().registerUser(registerBody).execute();
+                Response<LoginResponse> response = ServiceProvider.getService().registerUser(loginBody).execute();
                 if(response.isSuccessful()){
-                    RegisterResponse registerResponse = response.body();
-                    if(registerResponse == null){
+                    LoginResponse loginResponse = response.body();
+                    if(loginResponse == null){
                         throw new RuntimeException("No Register response available");
 
                     }
-                    appStorage.saveToken(registerResponse.getToken());
-                    _registrationSuccess.postValue(registerResponse.getUser());
+                    appStorage.saveToken(loginResponse.getToken());
+                    _registrationSuccess.postValue(loginResponse.getUser());
                 }else {
                     //{"email:["The email is already taken.]} response occurs
                     try (ResponseBody errorRes = response.errorBody()) {
